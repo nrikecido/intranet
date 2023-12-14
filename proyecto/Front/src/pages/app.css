@@ -1,0 +1,41 @@
+/* App.css */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+
+.main-container {
+  flex: 1; 
+  padding-top: 60px; 
+  padding-left: 107px;
+}
+
+.topbar {
+  background-color: #444;
+  color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 200px; /* Ajusta según el ancho de la barra lateral */
+  right: 0;
+  z-index: 1; /* Asegura que la barra superior esté sobre la barra lateral */
+}
