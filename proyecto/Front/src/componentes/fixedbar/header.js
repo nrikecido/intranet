@@ -1,20 +1,22 @@
-import React from "react";
+import React from 'react';
 
 const Header = () => {
-    return <>
-    <div class="container-fluid border p-2 contenido-superior bg-success-subtle topbar">
-        <div class="container-fluid">
-            <h1 class="align-items-between">Embutidos Yecla</h1>
+  return (
+    <div className="container-fluid p-0">
+      <div className="d-flex flex-wrap bg-dark p-3 rounded">
+        <div className="container-fluid">
+          <h1 className="text-white">Company, S.A</h1>
         </div>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6"><p>Enrique Juguera Martín</p></div>
-                <div class="col-md-2"><p>Trabajador</p></div>
-                <div class="col-md-2"><p>En línea</p></div>
-            </div>
+        <div className="container-fluid">
+          <div className="row text-white">
+            <div className="col-md-4"><p>Dirección: Calle Manuel Bolívar, s/n</p></div>
+            <div className="col-md-4"><p>Director: Pedro Sánchez</p></div>
+            <div className="col-md-4"><p>Teléfono: 654654654</p></div>
+          </div>
         </div>
+      </div>
     </div>
-    </>
+  );
 }
 
 export default Header;

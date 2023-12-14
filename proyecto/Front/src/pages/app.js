@@ -1,16 +1,17 @@
 import Header from "../componentes/fixedbar/header";
 import Sidebar from "../componentes/fixedbar/sidebar";
-import './app.css'
 
 const ContenidoHeader = (props) => {
     return <>
-        <div className="app-container">
+    <div className="row">
+        <div className="col-xl-2">
             <Sidebar></Sidebar>
-            <div className="main-container">
-                <Header></Header>
-                <div className="main-container">{props.children}</div>
-            </div>
         </div>
+        <div className="col-xl">
+            <Header></Header>
+            <div>{props.children}</div>
+        </div>
+    </div>
     </>
 }
 
