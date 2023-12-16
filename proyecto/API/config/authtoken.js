@@ -8,9 +8,10 @@ const authtoken = async (req, resp, next) => {
         return resp.status(401).send({ status: false, error: 'No has enviado el token' })
     }
 
-    const result = await DB.select("*")
+    const result = await DB.select("users.*", "jobstate.rangue")
         .from('users')
-        .where('token', token);
+        .where('token', token)
+        .join('jobstate', 'users.ID', '=', 'jobstate.userID')
 
         if (result.length === 0) {
             return resp.status(401).send({ status: false, error: 'Token inválido'})
@@ -18,7 +19,6 @@ const authtoken = async (req, resp, next) => {
 
         req.user = result[0];
         next();
-        
 };
 
 module.exports = authtoken;

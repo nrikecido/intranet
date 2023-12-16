@@ -3,7 +3,8 @@ const router = express.Router();
 const DB = require ('../config/bd');
 const utils = require('../config/utils');
 const hash = require('../config/password');
-const authtoken = require('../config/authtoken')
+const authtoken = require('../config/authtoken');
+const knex = require('knex');
 
 // ¿Usuarios del jefe? Se hará más adelante
 router.get('/list', async (req, resp) => {
@@ -28,13 +29,14 @@ router.get('/self', [authtoken], async (req, resp) => {
     const ID = req.user.ID;
     try{
 		const result = await DB.select(['ID', 'userID', 'enteredDate', 'finishedDate', 'total', 'created'])
+        .select(DB.raw('(SELECT SUM(total) FROM times WHERE userID = ?) AS totalSuma', [ID]))
 		.from('times')
-        .where('ID', ID)
+        .where('userID', ID);
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: result, error: 'No hay datos' });
         }
 	}catch (error){
 		console.error(error);
@@ -44,11 +46,11 @@ router.get('/self', [authtoken], async (req, resp) => {
 
 // Obtener perfiles para el jefe
 router.get('/:id', async (req, resp) => {
-    const ID = req.params.id;
+    const userID = req.params.id;
     try{
 		const result = await DB.select(['ID', 'userID', 'enteredDate', 'finishedDate', 'total', 'created'])
 		.from('times')
-        .where('ID', ID)
+        .where('userID', userID)
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
@@ -63,18 +65,32 @@ router.get('/:id', async (req, resp) => {
 
 // Introducir fichaje de inicio
 router.post('/start', [authtoken], async (req, resp) => {
+    
     const ID = req.user.ID;
-    const start = new Date();
+    const entry = new Date();
 
     try {
-        const result = await DB('times').insert({
+        // Verificar si ya se registró la salida para la última entrada
+        const lastEntry = await DB('times')
+            .where('userID', ID)
+            .orderBy('enteredDate', 'desc')
+            .first();
+
+        if (lastEntry && !lastEntry.finishedDate) {
+            return resp.json({ status: false, error: 'Debe registrar la salida antes de una nueva entrada.' });
+        }
+
+        // Registrar la nueva entrada
+        await DB('times').insert({
             userID: ID,
-            enteredDate: start,
+            enteredDate: entry,
+            finishedDate: null, 
+            total: 0,
         });
 
-        return resp.json({ status: true, data: "Fichaje de inicio registrado correctamente." });
+        return resp.json({ status: true, data: "Fichaje de entrada registrado correctamente." });
     } catch (error) {
-        console.error('Error al registrar el fichaje de inicio:', error);
+        console.error('Error al registrar el fichaje de entrada:', error);
         return resp.json({ status: false, error: 'Algo falló' });
     }
 });
@@ -98,6 +114,7 @@ router.post('/finish', [authtoken], async (req, resp) => {
             // Actualizar la salida y el total
             await DB('times')
                 .where('userID', ID)
+                .andWhere('enteredDate', lastEntry.enteredDate)
                 .update({
                     finishedDate: finish,
                     total: timeDifference,
@@ -113,6 +130,31 @@ router.post('/finish', [authtoken], async (req, resp) => {
     }
 });
 
+// Obtener fechas individuales
+router.post('/:id', [authtoken], async (req, resp) => {
+
+    const ID = req.user.ID;
+    const fecha = req.params.id;
+    const fechaFinal = fecha.split(' ')[0];
+    
+    try{
+		const result = await DB.select(['ID', 'userID', 'enteredDate', 'finishedDate', 'total', 'created'])
+        .select(DB.raw('DATE_FORMAT(enteredDate, "%Y-%m-%d") as fecha'))
+		.from('times')
+        .where(DB.raw('DATE_FORMAT(enteredDate, "%Y-%m-%d")'), fechaFinal)
+        .andWhere('userID', ID)
+		
+		if (result.length > 0) {
+            return resp.status(200).json({ status: true, data: result });
+        } else {
+            return resp.status(404).json({ status: false, data: result });
+        }
+        
+	}catch (error){
+		console.error(error);
+        return resp.status(500).json({ status: false, error: "Error interno del servidor." });
+	}
+})
 
 // Modificar dato (solo el jefe)
 router.put('/', async (req, resp) => {

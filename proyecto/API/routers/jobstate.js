@@ -32,7 +32,7 @@ router.get('/self', [authtoken], async (req, resp) => {
         .where('ID', ID)
 		
 		if (result.length > 0) {
-            return resp.status(200).json({ status: true, data: result });
+            return resp.status(200).json({ status: true, data: result[0] });
         } else {
             return resp.status(404).json({ status: false, data: result });
         }

@@ -9,8 +9,8 @@ const authtoken = require('../config/authtoken')
 router.get('/list', async (req, resp) => {
 
     try{
-		const result = await DB.select(['ID', 'userID', 'department', 'rangue', 'antiquity', 'contract'])
-		.from('jobstate')
+		const result = await DB.select(['ID', 'userID', 'enjoyed', 'available'])
+		.from('holidays')
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
@@ -23,12 +23,12 @@ router.get('/list', async (req, resp) => {
 	}
 })
 
-// Obtener el propio jobstate
+// Obtener el propio holidays
 router.get('/self', [authtoken], async (req, resp) => {
     const ID = req.user.ID;
     try{
-		const result = await DB.select(['ID', 'userID', 'department', 'rangue', 'antiquity', 'contract'])
-		.from('jobstate')
+		const result = await DB.select(['ID', 'userID', 'enjoyed', 'available'])
+		.from('holidays')
         .where('ID', ID)
 		
 		if (result.length > 0) {
@@ -46,9 +46,9 @@ router.get('/self', [authtoken], async (req, resp) => {
 router.get('/:id', async (req, resp) => {
     const ID = req.params.id;
     try{
-		const result = await DB.select(['ID', 'userID', 'department', 'rangue', 'antiquity', 'contract'])
-		.from('jobstate')
-        .where('ID', ID)
+		const result = await DB.select(['ID', 'userID', 'enjoyed', 'available'])
+		.from('holidays')
+        .where('userID', ID)
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
@@ -65,15 +65,13 @@ router.get('/:id', async (req, resp) => {
 router.post('/', async (req, resp) => {
 
     try{
-		const result = await DB('jobstate').insert({
+		const result = await DB('holidays').insert({
             userID: req.body.userID,
-            department: req.body.department,
-            rangue: req.body.rangue,
-            antiquity: req.body.antiquity,
-            contract: req.body.contract
+            enjoyed: req.body.enjoyed,
+            available: req.body.available
         })
 		
-        return resp.json({ status: true, data: "Perfil creado correctamente." });
+        return resp.json({ status: true, data: "Datos introducidos correctamente" });
 	} catch (error) {
 	  console.error('Error al crear un nuevo usuario:', error);
   
@@ -84,7 +82,7 @@ router.post('/', async (req, resp) => {
 router.put('/', async (req, resp) => {
 
     const ID = req.body.userID;
-    const whitelist = ['userID', 'department', 'rangue', 'antiquity', 'contract'];
+    const whitelist = ['userID', 'enjoyed', 'available'];
     const toEdit = {};
 
     Object.keys(req.body).forEach(e => {
@@ -93,21 +91,21 @@ router.put('/', async (req, resp) => {
         }
     });
 
-    const result = await DB('jobstate')
+    const result = await DB('holidays')
         .update(toEdit)
-        .where('ID', ID)
+        .where('userID', ID)
 
     if (result > 0) {
-		resp.json({ status: true, message: 'Perfil actualizado correctamente', data: toEdit });
+		resp.json({ status: true, message: 'Entrada actualizada correctamente', data: toEdit });
 		} else {
-		resp.json({ status: false, message: 'Perfil no actualizado', data: toEdit });
+		resp.json({ status: false, message: 'Entrada no actualizada', data: toEdit });
 	};
 });
 
 // Borrar usuario (solo el jefe también)
 router.delete('/', [authtoken], async (req, resp) => {
 
-	const result = await DB('jobstate')
+	const result = await DB('holidays')
 	.delete()
 	.where('ID', req.body.userID);
 

@@ -27,12 +27,13 @@ router.get('/list', async (req, resp) => {
 router.get('/self', [authtoken], async (req, resp) => {
     const ID = req.user.ID;
     try{
-		const result = await DB.select(['ID', 'name', 'surname', 'mail'])
+		const result = await DB.select(['users.ID', 'users.name', 'users.surname', 'users.mail', 'jobstate.rangue'])
 		.from('users')
-        .where('ID', ID)
+        .where('users.ID', ID)
+        .join('jobstate', 'users.ID', '=', 'jobstate.userID')
 		
 		if (result.length > 0) {
-            return resp.status(200).json({ status: true, data: result });
+            return resp.status(200).json({ status: true, data: result[0] });
         } else {
             return resp.status(404).json({ status: false, data: result });
         }
@@ -130,12 +131,13 @@ router.post('/login', async (req, resp) => {
 
 	const userData = await DB('users')
       .select(['ID', 'token'])
-      .where('email', req.body.email)
+      .where('mail', req.body.mail)
 	  .where('password', req.body.password)
       .first();
+      console.log(req.body)
 
 	if (userData !== undefined ) {
-		const newToken = hash(userData.token);
+		const newToken = hash.newHash(userData.token);
 		await DB('users')
 		.where('ID', userData.ID)
 		.update('token', newToken)
