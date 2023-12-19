@@ -1,21 +1,34 @@
 import React from 'react';
 import imagen from '../../media/IMG_20230822_131214.jpg';
-import { Link } from 'react-router-dom';
-import { state, useState, useEffect} from 'react';
+import { Link, useNavigate  } from 'react-router-dom';
+import { state, useState, useEffect, useContext} from 'react';
 import api from '../../config/api';
+import { ContextGlobal } from '../../config/contextglobal';
+
 
 const Sidebar = () => {
+
+    const [context, setContext] = useContext(ContextGlobal);
 
     const [state, setState] = useState({
         status: 'loading',
         data: []
     });
 
+    const redirect = useNavigate();
+
     useEffect(() => {
         api.get('/users/self').then(result => {
             setState({...state, status: 'loaded', data: result.data})
         })
     }, [])
+
+    const logout = () => {
+        setTimeout(() => {
+            api.remove_token('token');
+            redirect('/workin')
+        }, 3000)
+    }
 
   return (
     <div className="d-flex flex-column flex-shrink-0 p-5 bg-dark text-white rounded">
@@ -26,6 +39,9 @@ const Sidebar = () => {
             {state &&<p>En línea</p>}
         </div>
         <p class="mt-5 p-3">
+            {context.user.rangue === 'boss' &&<p class="pst-group-item d-flex justify-content-between apgn-items-center sd-active">
+                <p class="sidebar-item"><Link className='text-white' style={{ textDecoration: 'none' }} to={'/app/workin/boss'}>EMPLEADOS</Link></p>
+            </p>}
             <p class="pst-group-item d-flex justify-content-between apgn-items-center sd-active">
                 <p class="sidebar-item"><Link className='text-white' style={{ textDecoration: 'none' }} to={'/app/workin/home'}>DATOS</Link></p>
             </p>
@@ -42,7 +58,7 @@ const Sidebar = () => {
                 <p class="sidebar-item"><Link className='text-white' style={{ textDecoration: 'none' }} to={'/app/workin/enterprise'}>EMPRESA</Link></p>
             </p>
             <p class="pst-group-item d-flex justify-content-between apgn-items-center sd-active">
-                <p class="sidebar-item">Cerrar sesión</p>
+                <button class="btn text-white" onClick={() => logout()}>Cerrar sesión</button>
             </p>
         </p>
     </div>

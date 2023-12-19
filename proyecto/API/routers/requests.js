@@ -9,8 +9,11 @@ const authtoken = require('../config/authtoken')
 router.get('/list', async (req, resp) => {
 
     try{
-		const result = await DB.select(['ID', 'userID', 'requestType', 'startDate', 'finishDate', 'comments', 'status', 'created'])
+		const result = await DB.select(['requests.ID', 'requests.userID', 'requests.requestType', 'requests.comments', 'requests.status', 'requests.created', 'users.name', 'users.surname'])
+        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y %H:%i:%s") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
 		.from('requests')
+        .join('users', 'requests.userID', '=', 'users.ID')
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
@@ -27,9 +30,34 @@ router.get('/list', async (req, resp) => {
 router.get('/self', [authtoken], async (req, resp) => {
     const ID = req.user.ID;
     try{
-		const result = await DB.select(['ID', 'userID', 'requestType', 'startDate', 'finishDate', 'comments','status', 'created'])
+		const result = await DB.select(['ID', 'userID', 'requestType', 'comments','status'])
+        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y %H:%i:%s") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
+        .select(DB.raw('DATE_FORMAT(created, "%d-%m-%Y %H:%i:%s") as creado'))
 		.from('requests')
         .where('userID', ID)
+		
+		if (result.length > 0) {
+            return resp.status(200).json({ status: true, data: result });
+        } else {
+            return resp.status(404).json({ status: false, data: result });
+        }
+	}catch (error){
+		console.error(error);
+        return resp.status(500).json({ status: false, error: "Error interno del servidor." });
+	}
+})
+
+// Obtener perfiles para el jefe
+router.get('/managed/:id', async (req, resp) => {
+    const ID = req.params.id;
+    try{
+		const result = await DB.select(['requests.ID', 'requests.userID', 'requests.requestType', 'requests.comments', 'requests.status', 'requests.created', 'users.name', 'users.surname'])
+        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y %H:%i:%s") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
+		.from('requests')
+        .join('users', 'requests.userID', '=', 'users.ID')
+        .where('users.ID', ID)
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
@@ -46,9 +74,12 @@ router.get('/self', [authtoken], async (req, resp) => {
 router.get('/:id', async (req, resp) => {
     const ID = req.params.id;
     try{
-		const result = await DB.select(['ID', 'userID', 'requestType', 'startDate', 'finishDate', 'comments','status', 'created'])
+		const result = await DB.select(['requests.ID', 'requests.userID', 'requests.requestType', 'requests.comments', 'requests.status', 'requests.created', 'users.name', 'users.surname'])
+        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y %H:%i:%s") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
 		.from('requests')
-        .where('userID', ID)
+        .join('users', 'requests.userID', '=', 'users.ID')
+        .where('requests.ID', ID)
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
@@ -81,11 +112,12 @@ router.post('/', [authtoken], async (req, resp) => {
 	}
 })
 
-// Modificar datos (solo el jefe)
-router.put('/', async (req, resp) => {
+// Gestionar vacaciones
+router.put('/:id', async (req, resp) => {
 
-    const ID = req.body.userID;
-    const whitelist = ['userID', 'requestType', 'startDate', 'finishDate', 'status'];
+    try{
+        const ID = req.params.id;
+    const whitelist = ['status'];
     const toEdit = {};
 
     Object.keys(req.body).forEach(e => {
@@ -96,21 +128,26 @@ router.put('/', async (req, resp) => {
 
     const result = await DB('requests')
         .update(toEdit)
-        .where('userID', ID)
+        .where('ID', ID)
 
     if (result > 0) {
-		resp.json({ status: true, message: 'Perfil actualizado correctamente', data: toEdit });
+		resp.json({ status: true, message: 'Petición actualizada correctamente', data: toEdit });
 		} else {
 		resp.json({ status: false, message: 'Perfil no actualizado', data: toEdit });
 	};
+    } catch(error){
+        console.error('Error al introducir el nuevo registro:', error);
+  
+	    return resp.json({ status: false, error: 'Algo falló' });
+    }
 });
 
-// Borrar usuario (solo el jefe también)
-router.delete('/', [authtoken], async (req, resp) => {
+// Borrar vacaciones
+router.delete('/:id', async (req, resp) => {
 
 	const result = await DB('requests')
 	.delete()
-	.where('ID', req.body.userID);
+	.where('ID', req.params.id);
 
 	if(result > 0){
 		resp.json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: req.user});

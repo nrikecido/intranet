@@ -11,6 +11,7 @@ import Sign from './componentes/sign';
 import Times from './componentes/times';
 import Requests from './componentes/requests';
 import Enterprise from './componentes/enterprise';
+import Boss from './componentes/boss';
 import Login from './login';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -23,6 +24,7 @@ root.render(
           <Route path='/app/workin/home' element={<APP><Home></Home></APP>}></Route>
           <Route path='/app/workin/sign' element={<APP><Sign></Sign></APP>}></Route>
           <Route path='/app/workin/times' element={<APP><Times></Times></APP>}></Route>
+          <Route path='/app/workin/boss' element={<APP><Boss></Boss></APP>}></Route>
           <Route path='/app/workin/requests' element={<APP><Requests></Requests></APP>}></Route>
           <Route path='/app/workin/enterprise' element={<APP><Enterprise></Enterprise></APP>}></Route>
         </Routes>

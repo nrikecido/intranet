@@ -17,7 +17,7 @@ const ContenidoHeader = (props) => {
 			if(d.status === true){
 				setContext({...context, status: "loaded", user: d.data})
 			}else{
-				navigate('/musin');
+				navigate('/workin');
 				// setContext({...context, status: "loaded"});		
 			}
 		})

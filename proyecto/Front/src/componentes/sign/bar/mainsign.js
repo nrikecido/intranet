@@ -4,8 +4,6 @@ import api from '../../../config/api';
 const Main = () => {
 
   const [state, setState] = useState({
-    content: '',
-    fichajeType: '',
     message: ''
   });
 
@@ -16,28 +14,16 @@ const Main = () => {
     }, 3000)
   }
 
-  const saveData = (field, value) => {
-    setState({ ...state, [field]: value });
-  }
+  const sendSign = (tipo) => {
+    api.post(`/times/${tipo}`).then(result => {
+      if (result.status === true) {
+        showMessage(`Fichaje de ${tipo} correcto`)
+      } else {
+        showMessage(`Ya hay un fichaje de ${tipo} registrado`)
+      }
+  });}
 
-  const sendSign = () => {
-    const obj = {
-    content: state.content,
-  };
-
-  api.post(`/times/${state.fichajeType}`, obj).then(result => {
-    if (result.status === true) {
-      showMessage('Fichaje de ' +state.fichajeType + ' correcto')
-    }
-    });
-  }
-
-  const handleFichajeClick = (tipo) => {
-    saveData('fichajeType', tipo);
-    sendSign();
-  }
-
-  return (
+  return <>
     <div className="col-xl-7 suggested">
       <div className="row">
         <div className="col-md-12">
@@ -48,13 +34,13 @@ const Main = () => {
                 <h3>Fichajes de jornada</h3>
                 <button
                   className="btn btn-success btn-lg d-block mb-2"
-                  onClick={() => handleFichajeClick('start')}
+                  onClick={() => sendSign('start')}
                 >
                   Inicio Jornada
                 </button>
                 <button
                   className="btn btn-danger btn-lg d-block"
-                  onClick={() => handleFichajeClick('finish')}
+                  onClick={() => sendSign('finish')}
                 >
                   Fin Jornada
                 </button>
@@ -64,13 +50,13 @@ const Main = () => {
                 <h3>Fichajes de descanso</h3>
                 <button
                   className="btn btn-success btn-lg d-block mb-2"
-                  onClick={() => handleFichajeClick('breakStart')}
+                  onClick={() => sendSign('breakStart')}
                 >
                   Inicio Descanso
                 </button>
                 <button
                   className="btn btn-danger btn-lg d-block"
-                  onClick={() => handleFichajeClick('breakFinish')}
+                  onClick={() => sendSign('breakFinish')}
                 >
                   Fin Descanso
                 </button>
@@ -80,7 +66,7 @@ const Main = () => {
         </div>
       </div>
     </div>
-  );
+    </>;
 }
 
 export default Main;

@@ -20,9 +20,9 @@ const Signs = () => {
 
     const renderedSigns = lastThreeSigns.map(sign => (
         <div className="card" key={sign.ID}>
-          <p className="card-text border-bottom pb-2">Fecha: {sign.enteredDate.split('T')[0]}</p>
-          <p className="card-text border-bottom pb-2">Hora de entrada: {sign.enteredDate.split('T')[1]}</p>
-          <p className="card-text border-bottom pb-2">Hora de salida: {sign.finishedDate?.split('T')[1]}</p>
+          <p className="card-text border-bottom pb-2">Fecha: {sign.fecha.split(' ')[0]}</p>
+          <p className="card-text border-bottom pb-2">Hora de entrada: {sign.fecha?.split(' ')[1]}</p>
+          <p className="card-text border-bottom pb-2">Hora de salida: {sign.fecha2?.split(' ')[1]}</p>
           <p className="card-text border-bottom pb-2">Total trabajado: {sign.total} horas</p>
         </div>
     ));

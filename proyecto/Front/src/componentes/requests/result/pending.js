@@ -1,57 +1,75 @@
-const Pending= () => {
-    return<>
-    <div className="col-md-9">
-        <p>Pendiente</p>
-    </div>
-    </>
-}
-
-export default Pending;
-
-/*import React, { useState } from 'react';
-import Calendar from 'react-calendar';
+import React, { useState, useEffect } from 'react';
 import 'react-calendar/dist/Calendar.css';
 import api from '../../../config/api';
+import { useNavigate } from 'react-router-dom';
 
-const Freeday = () => {
+const Pending = () => {
 
-    const [date, setDate] = useState(new Date());
+  const [state, setState] = useState({
+    status: 'loading',
+    pending: [],
+  });
 
-    const onChange = (newDate) => {
-        setDate(newDate);
-    };
+  useEffect(() => {
+    api.get('/requests/self').then((result) => {
+      setState({ ...state, status: 'loaded', pending: result.data });
+    });
+  }, []);
 
-    const fecha = (date) => {
-        const day = date.getDate();
-        const month = date.getMonth() +1;
-        const year = date.getFullYear();
-        return year+ '-' +month+'-'+day;
-    }
+  const redirect = useNavigate();
 
-    console.log(fecha(date))
+  const [message, setMessage] = useState('')
+  
+  const pendientes = state.pending.some((req) => req.status === 'pending')
 
-    return <>
-        <div className="col-xl-8">
-            <div className="row">
-                <div className="col-md-12">
-                    <div className="card rounded p-3 mb-4 border">
-                        <h2 className="card-header">Realizar petición de día/s libre/s</h2>
-                        <div className='row'>
-                            <Calendar className='col-md-6' onChange={onChange}></Calendar>
-                            {date &&<div className='col-md-6'>
-                                <h3>Días seleccionados</h3>
-                                <p>Día de inicio: {fecha(date)}</p>
-                                <p>Día de finalización:</p>
-                                <p>Días totales:</p>
-                                <p>Motivo:</p>
-                                <button className='btn'>Aceptar y enviar</button>
-                            </div>}
-                        </div>
-                    </div>
-                </div>
+  const delRequest = (id) => {
+    api.delete('/requests/'+id).then(result => {
+      if (result.status === true) {
+        setMessage(<p>Eliminado correctamente.</p>)
+        redirect('/app/workin/home')
+      } else {
+        setMessage(<p>Ha ocurrido un error.</p>)
+      }
+    })
+  }
+
+  console.log(state)
+  
+  return (
+    <>
+      <div className="col-xl-5">
+        <div className="row">
+          <div className="col-md-12">
+            <div className="card rounded p-3 mb-4 border">
+              <h2 className="card-header">Tus peticiones pendientes</h2>
+              <div className="card-body pb-4">
+                {!pendientes &&<p>No tienes peticiones propias pendientes</p>}
+                {state.status === 'loaded' && (
+                <>
+                {state.pending
+                .filter((pendingItem) => pendingItem.status === 'pending')
+                .map((pendingItem) => (
+                  <div key={pendingItem.ID} className="mb-3 card-body border">
+                    <p className="mb-2">Fecha petición: {pendingItem.creado}</p>
+                    <p className="mb-2">
+                      Fecha solicitada: del {pendingItem.fecha} al {pendingItem.fecha2}
+                    </p>
+                    <p className="mb-2">Motivo: {pendingItem.comments}</p>
+                    <p className="mb-2">
+                      Estado: {pendingItem.status === 'pending' && <span className='bg-info p-2 rounded'>Pendiente</span>}
+                    </p>
+                    <button className='btn btn-danger p-3 rounded' onClick={()=> delRequest(pendingItem.ID)}>Borrar</button>
+                  </div>
+                  ))}
+                  </>
+                )}
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </>
-}
+  );
+};
 
-export default Freeday;*/
+export default Pending;

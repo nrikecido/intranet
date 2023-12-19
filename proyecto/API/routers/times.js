@@ -10,7 +10,9 @@ const knex = require('knex');
 router.get('/list', async (req, resp) => {
 
     try{
-		const result = await DB.select(['ID', 'userID', 'enteredDate', 'finishedDate', 'total', 'created'])
+		const result = await DB.select(['ID', 'userID', 'total', 'created'])
+        .select(DB.raw('DATE_FORMAT(enteredDate, "%d-%m-%Y %H:%i:%s") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishedDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
 		.from('times')
 		
 		if (result.length > 0) {
@@ -28,8 +30,9 @@ router.get('/list', async (req, resp) => {
 router.get('/self', [authtoken], async (req, resp) => {
     const ID = req.user.ID;
     try{
-		const result = await DB.select(['ID', 'userID', 'enteredDate', 'finishedDate', 'total', 'created'])
-        .select(DB.raw('(SELECT SUM(total) FROM times WHERE userID = ?) AS totalSuma', [ID]))
+		const result = await DB.select(['ID', 'userID', 'total', 'created'])
+        .select(DB.raw('DATE_FORMAT(enteredDate, "%d-%m-%Y %H:%i:%s") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishedDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
 		.from('times')
         .where('userID', ID);
 		
@@ -48,7 +51,9 @@ router.get('/self', [authtoken], async (req, resp) => {
 router.get('/:id', async (req, resp) => {
     const userID = req.params.id;
     try{
-		const result = await DB.select(['ID', 'userID', 'enteredDate', 'finishedDate', 'total', 'created'])
+		const result = await DB.select(['ID', 'userID', 'total', 'created'])
+        .select(DB.raw('DATE_FORMAT(enteredDate, "%d-%m-%Y %H:%i:%s") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishedDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
 		.from('times')
         .where('userID', userID)
 		

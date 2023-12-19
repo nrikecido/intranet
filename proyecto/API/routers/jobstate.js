@@ -29,7 +29,7 @@ router.get('/self', [authtoken], async (req, resp) => {
     try{
 		const result = await DB.select(['ID', 'userID', 'department', 'rangue', 'antiquity', 'contract'])
 		.from('jobstate')
-        .where('ID', ID)
+        .where('userID', ID)
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result[0] });
@@ -48,7 +48,7 @@ router.get('/:id', async (req, resp) => {
     try{
 		const result = await DB.select(['ID', 'userID', 'department', 'rangue', 'antiquity', 'contract'])
 		.from('jobstate')
-        .where('ID', ID)
+        .where('userID', ID)
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
@@ -62,11 +62,10 @@ router.get('/:id', async (req, resp) => {
 })
 
 // Introducir datos (solo el jefe)
-router.post('/', async (req, resp) => {
-
+router.post('/:id', async (req, resp) => {
     try{
 		const result = await DB('jobstate').insert({
-            userID: req.body.userID,
+            userID: req.params.id,
             department: req.body.department,
             rangue: req.body.rangue,
             antiquity: req.body.antiquity,
@@ -81,10 +80,10 @@ router.post('/', async (req, resp) => {
 	}
 })
 
-router.put('/', async (req, resp) => {
+router.put('/:id', async (req, resp) => {
 
-    const ID = req.body.userID;
-    const whitelist = ['userID', 'department', 'rangue', 'antiquity', 'contract'];
+    const ID = req.params.id;
+    const whitelist = ['department', 'rangue', 'antiquity', 'contract'];
     const toEdit = {};
 
     Object.keys(req.body).forEach(e => {
@@ -95,7 +94,7 @@ router.put('/', async (req, resp) => {
 
     const result = await DB('jobstate')
         .update(toEdit)
-        .where('ID', ID)
+        .where('userID', ID)
 
     if (result > 0) {
 		resp.json({ status: true, message: 'Perfil actualizado correctamente', data: toEdit });

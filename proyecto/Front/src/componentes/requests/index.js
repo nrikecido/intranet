@@ -5,6 +5,8 @@ import Freeday from './requestsTypes/freeday';
 import Other from "./requestsTypes/other";
 import Pending from './result/pending';
 import Result from './result/results';
+import ManageList from "./boss/manageList";
+import Manage from "./boss/manage";
 import { useState } from "react";
 
 const Sign = () => {
@@ -13,7 +15,7 @@ const Sign = () => {
         module: <Data />
     })
 
-    const updateMain = (module) => {
+    const updateMain = (module, id) => {
 
         if (module === 'freeday') {setState({...state, module: <Freeday updateMain={updateMain}/>})}
 
@@ -24,6 +26,10 @@ const Sign = () => {
         if (module === 'pending') {setState({...state, module: <Pending />})}
 
         if (module === 'result') {setState({...state, module: <Result />})}
+
+        if(module === 'manageList') {setState({state, module: <ManageList updateMain={updateMain}/>})}
+
+        if(module === 'manage') {setState({state, module: <Manage id={id}/>})}
     }
 
     return<>

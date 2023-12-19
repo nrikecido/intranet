@@ -9,8 +9,9 @@ const authtoken = require('../config/authtoken')
 router.get('/list', async (req, resp) => {
 
     try{
-		const result = await DB.select(['ID', 'name', 'surname', 'mail'])
+		const result = await DB.select(['users.ID', 'users.name', 'users.surname', 'users.mail', 'jobstate.rangue'])
 		.from('users')
+        .leftJoin('jobstate', 'users.ID', '=', 'jobstate.userID')
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
@@ -78,7 +79,7 @@ router.post('/', async (req, resp) => {
             token: hash.newHash(req.body.mail + req.body.password)
         })
 		
-        return resp.json({ status: true, data: "Perfil creado correctamente." });
+        return resp.json({ status: true, data: "Perfil creado correctamente.", ID: result });
 	} catch (error) {
 	  console.error('Error al crear un nuevo usuario:', error);
   
@@ -87,7 +88,7 @@ router.post('/', async (req, resp) => {
 })
 
 // Modificar datos (solo el jefe)
-router.put('/', async (req, resp) => {
+router.put('/:id', async (req, resp) => {
 
     const whitelist = ['name', 'surname', 'mail', 'password'];
     const toEdit = {};
@@ -104,7 +105,7 @@ router.put('/', async (req, resp) => {
 
     const result = await DB('users')
         .update(toEdit)
-        .where('ID', req.body.userID)
+        .where('ID', req.params.id)
 
     if (result > 0) {
 		resp.json({ status: true, message: 'Perfil actualizado correctamente', data: toEdit });
@@ -114,17 +115,24 @@ router.put('/', async (req, resp) => {
 });
 
 // Borrar usuario (solo el jefe también) Repasar cuando haga el frontEnd
-router.delete('/', async (req, resp) => {
+router.delete('/:id', async (req, resp) => {
+    try{
+        const ID = req.params.id;
 
-	const result = await DB('users')
-	.delete()
-	.where('ID', req.body.ID);
+        const result = await DB('users')
+        .delete()
+        .where('ID', ID);
 
-	if(result > 0){
-		resp.json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: req.user});
-	} else {
-		resp.json({ status: false, message: 'Ha habido algún error' })
-	}
+        if(result > 0){
+            resp.json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: ID});
+        } else {
+            resp.json({ status: false, message: 'Ha habido algún error' })
+        }
+
+    } catch(error){
+        resp.json({ status: false, message: 'ha habido un error', error: console.log(error) })
+    }
+    
 });
 
 router.post('/login', async (req, resp) => {
