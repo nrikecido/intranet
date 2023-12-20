@@ -21,7 +21,6 @@ const Result = () => {
     }, [])
 
     const pendientes = state.pending.some((req) => req.status === 'pending')
-    console.log(pendientes)
 
     return<>
     <div className="col-xl-5">
@@ -30,25 +29,29 @@ const Result = () => {
                 <div className="card rounded p-3 mb-4 border">
                     <h2 className="card-header">Tus peticiones resueltas</h2>
                     <div className="card-body pb-4">
-                        {pendientes && <p>No tienes peticiones resueltas</p>}
+                        {pendientes.length !== 0 && <p>No tienes peticiones resueltas</p>}
                         {state.status === 'loaded' && (
                         <>
-                            {state.pending
-                            .filter((pendingItem) => pendingItem.status === 'approved' || pendingItem.status === 'rejected')
-                            .map((pendingItem) => (
-                                <div key={pendingItem.ID} className="mb-3 card-body border">
-                                    <p className="mb-2">Fecha petición: {pendingItem.created}</p>
-                                    <p className="mb-2">
-                                        Fecha solicitada: del {pendingItem.fecha} al {pendingItem.fecha2}
-                                    </p>
-                                    <p className="mb-2">Motivo: {pendingItem.comments}</p>
-                                    <p className="mb-2">
-                                        Estado: 
-                                        {pendingItem.status === 'approved' && <span className='bg-success p-2 rounded'>Aprobada</span>}
-                                        {pendingItem.status === 'rejected' && <span className='bg-danger p-2 rounded'>Rechazada</span>}
-                                    </p>
-                                </div>
-                            ))}
+                        {state.pending
+                        .filter((pendingItem) => pendingItem.status === 'approved' || pendingItem.status === 'rejected')
+                        .map((pendingItem) => (
+                            <div key={pendingItem.ID} className="mb-3 card-body border">
+                                <p className="mb-2">Fecha petición: {pendingItem.creado}</p>
+                                <p className="mb-2">
+                                    Fecha solicitada: del {pendingItem.fecha} al {pendingItem.fecha2}
+                                </p>
+                                <p className="mb-2">Motivo: {pendingItem.comments}</p>
+                                <p className="mb-2">
+                                    Estado: 
+                                    {pendingItem.status === 'approved' && <span className='bg-success p-2 rounded'>Aprobada</span>}
+                                    {pendingItem.status === 'rejected' && 
+                                    <div className='col-md-5'>
+                                        <p className='bg-danger p-2 rounded'>Rechazada</p>
+                                        <p>Motivo: {pendingItem.rejected}</p>
+                                    </div>}
+                                </p>
+                            </div>
+                        ))}
                         </>
                         )}
                     </div>

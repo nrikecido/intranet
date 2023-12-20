@@ -50,7 +50,7 @@ const SeeEmployee = ({id, updateMain}) => {
             redirect('/app/workin/home')
         }, 3000)
     }
-
+    console.log('jobState')
     return <>
     <div className="col-xl-7 suggested">
             <div className="row">
@@ -69,7 +69,7 @@ const SeeEmployee = ({id, updateMain}) => {
                             return <div className="card-body pb-4">
                                 <p className="card-text border-bottom pb-2">Departamento: {jobState.department}</p>
                                 <p className="card-text border-bottom pb-2">Rango: {jobState.rangue}</p>
-                                <p className="card-text border-bottom pb-2">Antigüedad: {jobState.antiquity} años/s</p>
+                                <p className="card-text border-bottom pb-2">Antigüedad: {jobState.antiquity} año/s</p>
                                 <p className="card-text border-bottom pb-2">Contrato: {jobState.contract}</p>
                             </div>
                         })}

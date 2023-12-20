@@ -26,7 +26,7 @@ const Job = ({id}) => {
         const obj = {
             department: state.department,
             rangue: state.rangue,
-            antiquity: 2,
+            antiquity: state.antiquity,
             contract: state.contract
         }
     
@@ -37,7 +37,6 @@ const Job = ({id}) => {
                setMessage(<p>Algo salió mal</p>)
             }
         })
-
     }
 
     return <>
@@ -78,6 +77,18 @@ const Job = ({id}) => {
                                     <option value="boss">Mando</option>
                                     {/* Agrega más opciones según tus necesidades */}
                                 </select>
+                            </p>
+                            <p className="mb-3">
+                                <label className="mb-2 text-muted">Fecha inicio contrato:</label>
+                                <input id="rango" 
+                                type="date" 
+                                className="form-control" 
+                                name="rango" 
+                                value={state.antiquity}
+                                onChange={(e) => setState({ ...state, antiquity: e.target.value })}
+                                required
+                                >
+                                </input>
                             </p>
                             <p className="mb-3">
                                 <label className="mb-2 text-muted">Contrato:</label>

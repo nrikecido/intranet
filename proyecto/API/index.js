@@ -12,8 +12,6 @@ app.use('/jobstate', require('./routers/jobstate'));
 app.use('/times', require('./routers/times'));
 app.use('/requests', require('./routers/requests'));
 app.use('/holidays', require('./routers/holidays'));
-app.use('/freereq', require('./routers/freeRequests'));
-app.use('/holireq', require('./routers/holiRequests'));
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

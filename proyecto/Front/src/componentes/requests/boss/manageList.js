@@ -33,12 +33,12 @@ const ManageList = (props) => {
                       <p className="mb-2">
                         Nombre y apellidos: {request.name} {request.surname}
                       </p>
-                      <p className="mb-2">Fecha petición: {request.created}</p>
+                      <p className="mb-2">Fecha petición: {request.creado}</p>
                       <p className="mb-2">
                         Fechas solicitadas: del {request.fecha} al {request.fecha2}
                       </p>
                       <p className="mb-2">Motivo: {request.comments}</p>
-                      <button className="btn" onClick={()=> props.updateMain('manage', request.ID)}>Gestionar</button>
+                      <button className="btn btn-primary" onClick={()=> props.updateMain('manage', request.ID)}>Gestionar</button>
                     </div>
                   );
                 })}

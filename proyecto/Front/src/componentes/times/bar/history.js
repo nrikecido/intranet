@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import api from '../../../config/api'
+import api from '../../../config/api';
+import { ContextGlobal } from '../../../config/contextglobal';
 
+const History = ({updateMain}) => {
 
-const History = () => {
+    const [context, setContext] = useContext(ContextGlobal);
+
+    const isBoss = context.user.rangue === 'boss';
 
     const [date, setDate] = useState(new Date());
 
@@ -39,6 +43,17 @@ const History = () => {
         sendData(date)
     }, [date]);
 
+    const [userState, setUserState] = useState({
+        status: 'loading',
+        users: []
+    })
+
+    useEffect(()=> {
+        api.get('/users/list').then(result => {
+            setUserState({...userState, status: 'loaded', users: result.data})
+        })
+    }, [])
+
     return <>
     <div className="col-xl-7">
         <div className="row">
@@ -63,6 +78,28 @@ const History = () => {
                         </div>
                     </div>
                 </div>
+                {isBoss && 
+                    <div className="card rounded p-3 mb-4 border">
+                        <p>Ver fichajes de empleados</p>
+                        <div className='row'>
+                            <div>
+                                <h4>Selecciona uno</h4>
+                                <select
+                                className="form-select"
+                                onChange={(e)=> updateMain('see', e.target.value)}
+                                >
+                                <option value="">Selecciona un empleado</option>
+                                {userState.users.map((user) => (
+                                    <option key={user.ID} value={user.ID}>
+                                    {user.ID} {user.name} {user.surname}
+                                    </option>
+                                ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                }
+
             </div>
         </div>
     </div>

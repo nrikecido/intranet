@@ -25,8 +25,10 @@ const Pending = () => {
   const delRequest = (id) => {
     api.delete('/requests/'+id).then(result => {
       if (result.status === true) {
-        setMessage(<p>Eliminado correctamente.</p>)
-        redirect('/app/workin/home')
+        setMessage(<p className='bg-success p-3 rounded'>Eliminado correctamente.</p>)
+        setTimeout(()=> {
+          redirect('/app/workin/home')
+        }, 3000)
       } else {
         setMessage(<p>Ha ocurrido un error.</p>)
       }
@@ -63,7 +65,7 @@ const Pending = () => {
                   ))}
                   </>
                 )}
-              </div>
+              </div>{message}
             </div>
           </div>
         </div>

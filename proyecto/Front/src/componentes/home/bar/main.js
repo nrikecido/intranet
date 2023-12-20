@@ -31,7 +31,7 @@ const Main = () => {
 
     const isBoss = state.data.rangue === 'boss';
 
-    console.log(isBoss)
+    const antiqui = Math.round((new Date() - new Date(state.data.antiquity)) / (1000 * 60 * 60 * 24) / 365);
 
     const redirect = useNavigate();
 
@@ -47,9 +47,9 @@ const Main = () => {
                         <p className="card-text border-bottom pb-2">Nombre: {context.user.name}</p>
                         <p className="card-text border-bottom pb-2">Apellidos: {context.user.surname}</p>
                         <p className="card-text border-bottom pb-2">Correo: {context.user.mail}</p>
-                        <p className="card-text border-bottom pb-2">Departamento: {state.data?.department}</p>
-                        <p className="card-text border-bottom pb-2">Rango: {state.data?.rangue}</p>
-                        <p className="card-text border-bottom pb-2">Antigüedad: {state.data?.antiquity} año</p>
+                        <p className="card-text border-bottom pb-2">Departamento: {state.data?.department === 'manage' &&<span>Dirección</span>}</p>
+                        <p className="card-text border-bottom pb-2">Rango: {state.data?.rangue === 'boss' && <span>Mando</span>}</p>
+                        <p className="card-text border-bottom pb-2">Antigüedad: {antiqui} año/s, desde {state.data.start} </p>
                         <button className="btn">Nóminas: Ir a nóminas</button>
                         {pending && isBoss &&<button className='btn btn-danger p-3 rounded' onClick={()=> redirect('/app/workin/requests')}>Tienes peticiones pendientes</button>}
                     </div>

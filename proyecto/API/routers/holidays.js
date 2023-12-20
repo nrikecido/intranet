@@ -3,20 +3,25 @@ const router = express.Router();
 const DB = require ('../config/bd');
 const utils = require('../config/utils');
 const hash = require('../config/password');
-const authtoken = require('../config/authtoken')
+const authtoken = require('../config/authtoken');
+const { group } = require('console');
 
 // ¿Usuarios del jefe? Se hará más adelante
 router.get('/list', async (req, resp) => {
 
     try{
-		const result = await DB.select(['ID', 'userID', 'enjoyed', 'available'])
+		const result = await DB.select(['holidays.ID', 'holidays.userID', 'holidays.enjoyed', 'holidays.available', DB.raw('DATEDIFF(CURDATE(), jobstate.antiquity) as daysWorked')])
 		.from('holidays')
+        .join('jobstate', 'holidays.userID', '=', 'jobstate.userID')
+        .select(DB.raw('DATE_FORMAT(jobstate.antiquity, "%d-%m-%Y") as año'))
+        .groupBy('userID')
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
             return resp.status(404).json({ status: false, data: result });
         }
+
 	}catch (error){
 		console.error(error);
         return resp.status(500).json({ status: false, error: "Error interno del servidor." });

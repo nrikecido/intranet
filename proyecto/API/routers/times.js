@@ -13,6 +13,7 @@ router.get('/list', async (req, resp) => {
 		const result = await DB.select(['ID', 'userID', 'total', 'created'])
         .select(DB.raw('DATE_FORMAT(enteredDate, "%d-%m-%Y %H:%i:%s") as fecha'))
         .select(DB.raw('DATE_FORMAT(finishedDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
+        .select(DB.raw('DATE_FORMAT(created, "%d-%m-%Y") as creado'))
 		.from('times')
 		
 		if (result.length > 0) {
@@ -52,8 +53,10 @@ router.get('/:id', async (req, resp) => {
     const userID = req.params.id;
     try{
 		const result = await DB.select(['ID', 'userID', 'total', 'created'])
+        .select(DB.raw('TIMESTAMPDIFF(MINUTE, enteredDate, finishedDate) as total'))
         .select(DB.raw('DATE_FORMAT(enteredDate, "%d-%m-%Y %H:%i:%s") as fecha'))
         .select(DB.raw('DATE_FORMAT(finishedDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
+        .select(DB.raw('DATE_FORMAT(created, "%d-%m-%Y") as creado'))
 		.from('times')
         .where('userID', userID)
 		

@@ -10,8 +10,9 @@ router.get('/list', async (req, resp) => {
 
     try{
 		const result = await DB.select(['requests.ID', 'requests.userID', 'requests.requestType', 'requests.comments', 'requests.status', 'requests.created', 'users.name', 'users.surname'])
-        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y %H:%i:%s") as fecha'))
-        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
+        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y") as fecha2'))
+        .select(DB.raw('DATE_FORMAT(requests.created, "%d-%m-%Y") as creado'))
 		.from('requests')
         .join('users', 'requests.userID', '=', 'users.ID')
 		
@@ -30,10 +31,10 @@ router.get('/list', async (req, resp) => {
 router.get('/self', [authtoken], async (req, resp) => {
     const ID = req.user.ID;
     try{
-		const result = await DB.select(['ID', 'userID', 'requestType', 'comments','status'])
-        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y %H:%i:%s") as fecha'))
-        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
-        .select(DB.raw('DATE_FORMAT(created, "%d-%m-%Y %H:%i:%s") as creado'))
+		const result = await DB.select(['ID', 'userID', 'requestType', 'comments','status', 'rejected'])
+        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y") as fecha2'))
+        .select(DB.raw('DATE_FORMAT(created, "%d-%m-%Y") as creado'))
 		.from('requests')
         .where('userID', ID)
 		
@@ -52,9 +53,10 @@ router.get('/self', [authtoken], async (req, resp) => {
 router.get('/managed/:id', async (req, resp) => {
     const ID = req.params.id;
     try{
-		const result = await DB.select(['requests.ID', 'requests.userID', 'requests.requestType', 'requests.comments', 'requests.status', 'requests.created', 'users.name', 'users.surname'])
-        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y %H:%i:%s") as fecha'))
-        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
+		const result = await DB.select(['requests.ID', 'requests.userID', 'requests.requestType', 'requests.comments', 'requests.status', 'requests.created', 'requests.rejected', 'users.name', 'users.surname'])
+        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y") as fecha2'))
+        .select(DB.raw('DATE_FORMAT(requests.created, "%d-%m-%Y") as creado'))
 		.from('requests')
         .join('users', 'requests.userID', '=', 'users.ID')
         .where('users.ID', ID)
@@ -74,9 +76,10 @@ router.get('/managed/:id', async (req, resp) => {
 router.get('/:id', async (req, resp) => {
     const ID = req.params.id;
     try{
-		const result = await DB.select(['requests.ID', 'requests.userID', 'requests.requestType', 'requests.comments', 'requests.status', 'requests.created', 'users.name', 'users.surname'])
-        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y %H:%i:%s") as fecha'))
-        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
+		const result = await DB.select(['requests.ID', 'requests.userID', 'requests.requestType', 'requests.comments', 'requests.status', 'requests.created', 'requests.rejected', 'users.name', 'users.surname'])
+        .select(DB.raw('DATE_FORMAT(startDate, "%d-%m-%Y") as fecha'))
+        .select(DB.raw('DATE_FORMAT(finishDate, "%d-%m-%Y") as fecha2'))
+        .select(DB.raw('DATE_FORMAT(requests.created, "%d-%m-%Y") as creado'))
 		.from('requests')
         .join('users', 'requests.userID', '=', 'users.ID')
         .where('requests.ID', ID)
@@ -117,7 +120,7 @@ router.put('/:id', async (req, resp) => {
 
     try{
         const ID = req.params.id;
-    const whitelist = ['status'];
+    const whitelist = ['status', 'rejected'];
     const toEdit = {};
 
     Object.keys(req.body).forEach(e => {

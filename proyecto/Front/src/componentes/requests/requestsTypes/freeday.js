@@ -32,7 +32,7 @@ const Freeday = () => {
         };
 
         if (Object.values(requestData).some(value => value === undefined || value === '')) {
-            console.log('nada')
+            console.log('nada', requestData)
         } else {
             api.post('/requests', requestData).then(() => {
                 setMessage('Registrado correctamente.')
@@ -77,13 +77,19 @@ const Freeday = () => {
 
     const difDate = () => {
         if (dateRangue.startDate && dateRangue.endDate) {
-            const oneDay = 24 * 60 * 60 * 1000;
-            const startDate = new Date (dateRangue.startDate);
-            const endDate = new Date (dateRangue.endDate);
-            const diff = Math.round(Math.abs((startDate - endDate) / oneDay))
-            return diff
+          const oneDay = 24 * 60 * 60 * 1000;
+          const startDate = dateRangue.startDate;
+          const endDate = dateRangue.endDate;
+    
+          if (startDate.toDateString() === endDate.toDateString()) {
+            return 1;
+          }
+    
+          const diff = Math.ceil(Math.abs((startDate - endDate) / oneDay));
+          return diff + 1; // +1 para contar el día inicial
         }
-    }
+        return 0;
+    };
 
     return <>
         <div className="col-xl-8">
@@ -117,14 +123,20 @@ const Freeday = () => {
                                 <p>Días totales: {difDate()}</p>
                                 <p>Motivo: {dateRangue.startDate && dateRangue.endDate &&<p className='bg-success p-2 rounded' type="text">Ahora introduce el motivo</p>}</p>
                                 {dateRangue.startDate && dateRangue.endDate && 
-                                <textarea 
-                                rows={4}
+                                <select 
+                                type="text"
+                                name='comments'
                                 className="form-control rounded-input"
                                 id='comments'
                                 value={state.comments}
                                 onChange={(e) => setState({...state, comments: e.target.value})}
-                                ></textarea>}
-                                <button className='btn' onClick={sendRequest}>Aceptar y enviar</button>
+                                >
+                                    <option value="">Selecciona</option>
+                                    <option value="Asuntos personales">Asuntos personales</option> 
+                                    <option value="Cumplimiento deber público">Cumplimiento deber público</option> 
+                                    <option value="Hospitalización familiar">Hospitalización familiar</option> 
+                                </select>}
+                                <button className='btn' onClick={()=> sendRequest()}>Aceptar y enviar</button>
                             </div> {message}
                         </div>
                     </div>

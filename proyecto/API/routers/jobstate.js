@@ -10,6 +10,7 @@ router.get('/list', async (req, resp) => {
 
     try{
 		const result = await DB.select(['ID', 'userID', 'department', 'rangue', 'antiquity', 'contract'])
+        .select(DB.raw('DATE_FORMAT(antiquity, "%d-%m-%Y") as start'))
 		.from('jobstate')
 		
 		if (result.length > 0) {
@@ -28,6 +29,7 @@ router.get('/self', [authtoken], async (req, resp) => {
     const ID = req.user.ID;
     try{
 		const result = await DB.select(['ID', 'userID', 'department', 'rangue', 'antiquity', 'contract'])
+        .select(DB.raw('DATE_FORMAT(antiquity, "%d-%m-%Y") as start'))
 		.from('jobstate')
         .where('userID', ID)
 		
@@ -47,6 +49,7 @@ router.get('/:id', async (req, resp) => {
     const ID = req.params.id;
     try{
 		const result = await DB.select(['ID', 'userID', 'department', 'rangue', 'antiquity', 'contract'])
+        .select(DB.raw('DATE_FORMAT(antiquity, "%d-%m-%Y") as año'))
 		.from('jobstate')
         .where('userID', ID)
 		

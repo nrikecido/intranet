@@ -35,7 +35,7 @@ const Sidebar = () => {
         <img className="img-fluid rounded-circle p-2 mt-2" style={{ width: "200px" }} src={imagen} alt="profile" />
         <div className="mt-5 p-3">
             <p>{state.data.name} {state.data.surname}</p>
-            <p>{state.data.rangue}</p>
+            <p>{state.data.rangue === 'boss' &&<span>Mando</span>}</p>
             {state &&<p>En línea</p>}
         </div>
         <p class="mt-5 p-3">
