@@ -54,7 +54,7 @@ const Pending = () => {
                   <div key={pendingItem.ID} className="mb-3 card-body border">
                     <p className="mb-2">Fecha petición: {pendingItem.creado}</p>
                     <p className="mb-2">
-                      Fecha solicitada: del {pendingItem.fecha} al {pendingItem.fecha2}
+                      Fecha solicitada: del {pendingItem.enterDate} al {pendingItem.enterDate2}
                     </p>
                     <p className="mb-2">Motivo: {pendingItem.comments}</p>
                     <p className="mb-2">

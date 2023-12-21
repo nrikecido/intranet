@@ -51,7 +51,7 @@ const Manage = ({ id }) => {
                   </p>
                   <p className="mb-2">Fecha petición: {request.creado}</p>
                   <p className="mb-2">
-                    Fechas solicitadas: del {request.fecha} al {request.fecha2}
+                    Fechas solicitadas: del {request.fecha} al {request.exitDate}
                   </p>
                   <p className="mb-2">Motivo: {request.comments}</p>
 

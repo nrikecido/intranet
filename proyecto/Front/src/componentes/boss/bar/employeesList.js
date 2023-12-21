@@ -21,10 +21,9 @@ const Employees = (props) => {
             <div className="col-md-12">
                 <h2 className="card rounded p-3 mb-4 border">Empleados</h2>
                 {state.data.map(user => {
-                return <div className="card rounded p-3 mb-4 border">
-                    <div className="card-body pb-4">
-                        <p className="card-text border-bottom pb-2">ID empleado: {user.ID}</p>
-                        <p className="card-text border-bottom pb-2">Apellidos y nombre: {user.name} {user.surname} </p>
+                return <div className="card rounded mb-2 border">
+                    <div className="card-body">
+                        <p className="card-text">ID empleado: {user.ID} | Apellidos y nombre: {user.surname}, {user.name} </p>
                         <button className="btn" onClick={() => {props.updateMain('see', user.ID)}}>Ver empleado</button>
                         {user.rangue === null &&<p className='bg-warning p-3 rounded'>Faltan datos por introducir</p>}
                     </div>

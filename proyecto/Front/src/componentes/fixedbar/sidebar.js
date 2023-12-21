@@ -43,7 +43,7 @@ const Sidebar = () => {
                 <p class="sidebar-item"><Link className='text-white' style={{ textDecoration: 'none' }} to={'/app/workin/boss'}>EMPLEADOS</Link></p>
             </p>}
             <p class="pst-group-item d-flex justify-content-between apgn-items-center sd-active">
-                <p class="sidebar-item"><Link className='text-white' style={{ textDecoration: 'none' }} to={'/app/workin/home'}>DATOS</Link></p>
+                <p class="sidebar-item"><Link className='text-white' style={{ textDecoration: 'none' }} to={'/app/workin/home'}>HOME</Link></p>
             </p>
             <p class="pst-group-item d-flex justify-content-between apgn-items-center sd-active">
                 <p class="sidebar-item"><Link className='text-white' style={{ textDecoration: 'none' }} to={'/app/workin/sign'}>FICHAJES</Link></p>

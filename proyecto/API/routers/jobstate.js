@@ -16,7 +16,7 @@ router.get('/list', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -36,7 +36,7 @@ router.get('/self', [authtoken], async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result[0] });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -56,7 +56,7 @@ router.get('/:id', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -75,16 +75,21 @@ router.post('/:id', async (req, resp) => {
             contract: req.body.contract
         })
 		
-        return resp.json({ status: true, data: "Perfil creado correctamente." });
+        if (result.length > 0) {
+            return resp.status(200).json({ status: true, data: result, message: 'Perfil creado correctamente' });
+        } else {
+            return resp.status(404).json({ status: false, data: [], message: 'Hubo un error' });
+        }
 	} catch (error) {
 	  console.error('Error al crear un nuevo usuario:', error);
   
-	  return resp.json({ status: false, error: 'Algo falló' });
+	  return resp.status(500).json({ status: false, error: 'Algo falló' });
 	}
 })
 
 router.put('/:id', async (req, resp) => {
 
+    try {
     const ID = req.params.id;
     const whitelist = ['department', 'rangue', 'antiquity', 'contract'];
     const toEdit = {};
@@ -100,24 +105,36 @@ router.put('/:id', async (req, resp) => {
         .where('userID', ID)
 
     if (result > 0) {
-		resp.json({ status: true, message: 'Perfil actualizado correctamente', data: toEdit });
+		return resp.status(200).json({ status: true, message: 'Perfil actualizado correctamente', data: toEdit });
 		} else {
-		resp.json({ status: false, message: 'Perfil no actualizado', data: toEdit });
+        return resp.status(404).json({ status: false, message: 'Perfil no actualizado', data: [] });
 	};
+
+    } catch (error) {
+        console.error('Error al modificar usuario:', error);
+  
+	    return resp.status(500).json({ status: false, error: 'Algo falló' });
+    }
 });
 
 // Borrar usuario (solo el jefe también)
 router.delete('/', async (req, resp) => {
 
-	const result = await DB('jobstate')
+	try {
+    const result = await DB('jobstate')
 	.delete()
 	.where('ID', req.body.userID);
 
 	if(result > 0){
-		resp.json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: req.user});
+		resp.status(200).json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: req.user});
 	} else {
-		resp.json({ status: false, message: 'Ha habido algún error' })
+		resp.status(404).json({ status: false, message: 'Ha habido algún error' })
 	}
+    } catch (error){
+        console.error('Error al eliminar:', error);
+  
+	    return resp.status(500).json({ status: false, error: 'Algo falló' });
+    }
 });
 
 

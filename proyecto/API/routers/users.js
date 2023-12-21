@@ -16,11 +16,12 @@ router.get('/list', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
+          
 	}catch (error){
 		console.error(error);
-        return resp.status(500).json({ status: false, error: "Error interno del servidor." });
+        return resp.status(500).json({ status: false, error: console.log(error) });
 	}
 })
 
@@ -36,11 +37,11 @@ router.get('/self', [authtoken], async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result[0] });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
-        return resp.status(500).json({ status: false, error: "Error interno del servidor." });
+        return resp.status(500).json({ status: false, error: console.log(error) });
 	}
 })
 
@@ -55,12 +56,12 @@ router.get('/:id', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 
 	}catch (error){
 		console.error(error);
-        return resp.status(500).json({ status: false, error: "Error interno del servidor." });
+        return resp.status(500).json({ status: false, error: console.log(error) });
 	}
 })
 
@@ -69,7 +70,7 @@ router.post('/', async (req, resp) => {
 
     try{
         if(!utils.validarCorreo(req.body.mail)){
-            return resp.json({status: false, error: 'Correo electrónico no válido'})
+            return resp.json({status: false, error: 'Formato de correo electrónico no válido'})
         }
 		const result = await DB('users').insert({
             name: req.body.name,
@@ -79,60 +80,67 @@ router.post('/', async (req, resp) => {
             token: hash.newHash(req.body.mail + req.body.password)
         })
 		
-        return resp.json({ status: true, data: "Perfil creado correctamente.", ID: result });
+        if (result.length > 0) {
+            return resp.status(200).json({ status: true, message: 'Perfil creado correctamente', data: result });
+        } else {
+            return resp.status(404).json({ status: false, data: [] });
+        }
 	} catch (error) {
-	  console.error('Error al crear un nuevo usuario:', error);
-  
-	  return resp.json({ status: false, error: 'Algo falló' });
+        console.error(error);
+        return resp.status(500).json({ status: false, error: console.log(error) });
 	}
 })
 
 // Modificar datos (solo el jefe)
 router.put('/:id', async (req, resp) => {
 
-    const whitelist = ['name', 'surname', 'mail', 'password'];
-    const toEdit = {};
+    try{
+        const whitelist = ['name', 'surname', 'mail', 'password'];
+        const toEdit = {};
 
-    if (req.body.mail && !utils.validarCorreo(req.body.mail)) {
-        return resp.json({ status: false, error: 'Correo electrónico no válido' })
-    };
+        if (req.body.mail && !utils.validarCorreo(req.body.mail)) {
+            return resp.json({ status: false, error: 'Correo electrónico no válido' })
+        };
 
-    Object.keys(req.body).forEach(e => {
-        if (whitelist.includes(e)) {
-            toEdit[e] = req.body[e]
-        }
-    });
+        Object.keys(req.body).forEach(e => {
+            if (whitelist.includes(e)) {
+                toEdit[e] = req.body[e]
+            }
+        });
 
-    const result = await DB('users')
-        .update(toEdit)
-        .where('ID', req.params.id)
+        const result = await DB('users')
+            .update(toEdit)
+            .where('ID', req.params.id)
 
-    if (result > 0) {
-		resp.json({ status: true, message: 'Perfil actualizado correctamente', data: toEdit });
-			} else {
-		resp.json({ status: false, message: 'Perfil no actualizado', data: toEdit });
-	};
+        if (result > 0) {
+            resp.status(200).json({ status: true, message: 'Perfil actualizado correctamente', data: toEdit });
+        } else {
+            resp.status(404).json({ status: false, message: 'Perfil no actualizado', data: [] });
+        };
+    } catch (error){
+        console.error(error);
+        return resp.status(500).json({ status: false, error: console.log(error) });
+    }
 });
 
 // Borrar usuario (solo el jefe también) Repasar cuando haga el frontEnd
 router.delete('/:id', async (req, resp) => {
     try{
         const ID = req.params.id;
-
         const result = await DB('users')
         .delete()
         .where('ID', ID);
 
         if(result > 0){
-            resp.json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: ID});
+            resp.status(200).json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: ID});
         } else {
-            resp.json({ status: false, message: 'Ha habido algún error' })
+            resp.status(404).json({ status: false, message: 'Ha habido algún error' })
         }
 
     } catch(error){
-        resp.json({ status: false, message: 'ha habido un error', error: console.log(error) })
+        console.error(error);
+        return resp.status(500).json({ status: false, error: console.log(error) });
     }
-    
 });
 
 router.post('/login', async (req, resp) => {
@@ -142,7 +150,6 @@ router.post('/login', async (req, resp) => {
       .where('mail', req.body.mail)
 	  .where('password', req.body.password)
       .first();
-      console.log(req.body)
 
 	if (userData !== undefined ) {
 		const newToken = hash.newHash(userData.token);

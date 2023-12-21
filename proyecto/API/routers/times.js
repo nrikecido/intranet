@@ -11,6 +11,7 @@ router.get('/list', async (req, resp) => {
 
     try{
 		const result = await DB.select(['ID', 'userID', 'total', 'created'])
+        .select(DB.raw('TIMESTAMPDIFF(MINUTE, enteredDate, finishedDate) as total'))
         .select(DB.raw('DATE_FORMAT(enteredDate, "%d-%m-%Y %H:%i:%s") as fecha'))
         .select(DB.raw('DATE_FORMAT(finishedDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
         .select(DB.raw('DATE_FORMAT(created, "%d-%m-%Y") as creado'))
@@ -19,7 +20,7 @@ router.get('/list', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -32,15 +33,17 @@ router.get('/self', [authtoken], async (req, resp) => {
     const ID = req.user.ID;
     try{
 		const result = await DB.select(['ID', 'userID', 'total', 'created'])
+        .select(DB.raw('TIMESTAMPDIFF(MINUTE, enteredDate, finishedDate) as total'))
         .select(DB.raw('DATE_FORMAT(enteredDate, "%d-%m-%Y %H:%i:%s") as fecha'))
         .select(DB.raw('DATE_FORMAT(finishedDate, "%d-%m-%Y %H:%i:%s") as fecha2'))
+        .select(DB.raw('DATE_FORMAT(created, "%d-%m-%Y") as creado'))
 		.from('times')
         .where('userID', ID);
 		
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result, error: 'No hay datos' });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -63,7 +66,7 @@ router.get('/:id', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -78,7 +81,7 @@ router.post('/start', [authtoken], async (req, resp) => {
     const entry = new Date();
 
     try {
-        // Verificar si ya se registró la salida para la última entrada
+        
         const lastEntry = await DB('times')
             .where('userID', ID)
             .orderBy('enteredDate', 'desc')
@@ -88,7 +91,6 @@ router.post('/start', [authtoken], async (req, resp) => {
             return resp.json({ status: false, error: 'Debe registrar la salida antes de una nueva entrada.' });
         }
 
-        // Registrar la nueva entrada
         await DB('times').insert({
             userID: ID,
             enteredDate: entry,
@@ -128,13 +130,13 @@ router.post('/finish', [authtoken], async (req, resp) => {
                     total: timeDifference,
                 });
 
-            return resp.json({ status: true, data: "Fichaje de finalización registrado correctamente." });
+            return resp.status(200).json({ status: true, data: "Fichaje de finalización registrado correctamente." });
         } else {
-            return resp.json({ status: false, error: 'No se encontró una entrada válida para finalizar.' });
+            return resp.status(404).json({ status: false, error: 'No se encontró una entrada válida para finalizar.' });
         }
     } catch (error) {
         console.error('Error al registrar el fichaje de finalización:', error);
-        return resp.json({ status: false, error: 'Algo falló' });
+        return resp.status(500).json({ status: false, error: 'Algo falló' });
     }
 });
 
@@ -155,7 +157,7 @@ router.post('/:id', [authtoken], async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
         
 	}catch (error){
@@ -167,6 +169,7 @@ router.post('/:id', [authtoken], async (req, resp) => {
 // Modificar dato (solo el jefe)
 router.put('/', async (req, resp) => {
 
+    try{
     const ID = req.body.userID;
     const whitelist = ['enteredDate', 'finishedDate'];
     const toEdit = {};
@@ -182,24 +185,33 @@ router.put('/', async (req, resp) => {
         .where('ID', ID)
 
     if (result > 0) {
-		resp.json({ status: true, message: 'Perfil actualizado correctamente', data: toEdit });
+		return resp.status(200).json({ status: true, message: 'Perfil actualizado correctamente', data: toEdit });
 		} else {
-		resp.json({ status: false, message: 'Perfil no actualizado', data: toEdit });
+		return resp.status(404).json({ status: false, message: 'Perfil no actualizado', data: [] });
 	};
+    } catch (error) {
+        console.error(error);
+        return resp.status(500).json({ status: false, error: "Error interno del servidor." });
+    }
 });
 
 // Borrar tiempo (solo el jefe también)
 router.delete('/', async (req, resp) => {
 
-	const result = await DB('times')
+	try{
+    const result = await DB('times')
 	.delete()
 	.where('ID', req.body.userID);
 
 	if(result > 0){
-		resp.json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: req.user});
+		return resp.json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: req.user});
 	} else {
-		resp.json({ status: false, message: 'Ha habido algún error' })
+		return resp.json({ status: false, message: 'Ha habido algún error' })
 	}
+    } catch(error) {
+        console.error(error);
+        return resp.status(500).json({ status: false, error: "Error interno del servidor." });
+    }
 });
 
 module.exports = router;

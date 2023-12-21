@@ -29,11 +29,11 @@ const Main = () => {
         })
     }, [])
 
+    const redirect = useNavigate();
+
     const isBoss = state.data.rangue === 'boss';
 
     const antiqui = Math.round((new Date() - new Date(state.data.antiquity)) / (1000 * 60 * 60 * 24) / 365);
-
-    const redirect = useNavigate();
 
     const pending = request.requests && request.requests.some((req) => req.status === 'pending')
 

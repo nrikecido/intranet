@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../../../config/api";
 import { useNavigate } from "react-router-dom";
 
-const Modify = ({id}) => {
+const Modify = ({id, updateMain}) => {
 
     const [state, setState] = useState({
         status: 'loading',
@@ -10,11 +10,11 @@ const Modify = ({id}) => {
         message: null
     })
 
-    const [job, setJobState] = useState({
-        status: 'loading',
-        job: [],
-        message: null
-    })
+    useEffect(()=> {
+        api.get('/users/'+id).then(result => {
+            setState({...state, status: 'loaded', user: result.data})
+        })
+    }, [])
 
     const redirect = useNavigate();
 
@@ -32,16 +32,6 @@ const Modify = ({id}) => {
             setTimeout(()=>{
                 redirect('/app/workin/home')
             }, 3000)
-        })
-
-        const objJob= {
-            department: job.department,
-            rangue: job.rangue,
-            antiquity: job.antiquity,
-            contract: job.contract
-        }
-
-        api.put('/jobstate/'+id, objJob).then(result => {
         })
     }
 
@@ -96,63 +86,10 @@ const Modify = ({id}) => {
                             required />
                         </p>
                     </div>
-                    <div className="card-body pb-4">
-                        <p className="mb-3">
-                            <label className="mb-2 text-muted">Departamento:</label>
-                            <select 
-                                id="department" 
-                                className="form-control"
-                                name="department"
-                                value={job.department}
-                                onChange={(e) => setJobState({ ...job, department: e.target.value })}
-                                required
-                            >
-                                <option value="">Selecciona un departamento</option>
-                                <option value="trasport">Transporte</option>
-                                <option value="sell">Ventas</option>
-                                {/* Agrega más opciones según tus necesidades */}
-                            </select>
-                        </p>
-                        <p className="mb-3">
-                            <label className="mb-2 text-muted">Rango:</label>
-                            <select id="rango" 
-                            type="text" 
-                            className="form-control" 
-                            name="rango" 
-                            value={job.rangue}
-                            onChange={(e) => setJobState({ ...job, rangue: e.target.value })}
-                            required
-                            >
-                                <option value="">Selecciona un rango</option>
-                                <option value="worker">Peón</option>
-                                <option value="boss">Mando</option>
-                                {/* Agrega más opciones según tus necesidades */}
-                            </select>
-                        </p>
-                        <p className="mb-3">
-                            <label className="mb-2 text-muted">Contrato:</label>
-                            <select id="contrato" 
-                            type="text" 
-                            className="form-control" 
-                            name="contrato" 
-                            value={job.contract}
-                            onChange={(e) => setJobState({ ...job, contract: e.target.value })}
-                            required
-                            >
-                                <option value="">Selecciona un contrato</option>
-                                <option value="undefined">Indefinido</option>
-                                <option value="short">Duración determinada</option>
-                                <option value="long">Larga duración</option>
-                                <option value="prove">Período de prueba</option>
-                                {/* Agrega más opciones según tus necesidades */}
-                            </select>
-                        </p>
-                    </div>
-                    <div className="card rounded p-3 mb-4">
-                        <button className='btn btn-success mb-2' onClick={()=>{ updateUser()}} >Crear usuario y dar de alta</button>
-                        {state.message}
-                        <button className='btn btn-success' >Cancelar</button>
-                    </div>
+                    <button className='btn btn-success mb-2' onClick={()=>{ updateUser()}} >Guardar cambios</button>
+                    {state.message}
+                    <button className='btn btn-success' onClick={()=> updateMain('main')} >Cancelar</button>
+                    
                 </div>
             </div>
         </div>

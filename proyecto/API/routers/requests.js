@@ -19,7 +19,7 @@ router.get('/list', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -41,7 +41,7 @@ router.get('/self', [authtoken], async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -64,7 +64,7 @@ router.get('/managed/:id', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -87,7 +87,7 @@ router.get('/:id', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -107,11 +107,16 @@ router.post('/', [authtoken], async (req, resp) => {
             comments: req.body.comments
         })
         .where('userID', ID)
-        return resp.json({ status: true, data: result, message: "Petición registrada correctamente." });
+        if (result > 0){
+            return resp.status(200).json({ status: true, data: result, message: "Petición registrada correctamente." });
+            
+        } else {
+            return resp.status(404).json({ status: false, data: []});
+        }
 	} catch (error) {
 	  console.error('Error al introducir el nuevo registro:', error);
   
-	  return resp.json({ status: false, error: 'Algo falló' });
+	  return resp.status(500).json({ status: false, error: 'Algo falló' });
 	}
 })
 
@@ -119,7 +124,7 @@ router.post('/', [authtoken], async (req, resp) => {
 router.put('/:id', async (req, resp) => {
 
     try{
-        const ID = req.params.id;
+    const ID = req.params.id;
     const whitelist = ['status', 'rejected'];
     const toEdit = {};
 
@@ -134,29 +139,36 @@ router.put('/:id', async (req, resp) => {
         .where('ID', ID)
 
     if (result > 0) {
-		resp.json({ status: true, message: 'Petición actualizada correctamente', data: toEdit });
+		return resp.status(200).json({ status: true, message: 'Petición actualizada correctamente', data: toEdit });
 		} else {
-		resp.json({ status: false, message: 'Perfil no actualizado', data: toEdit });
+		return resp.status(404).json({ status: false, message: 'Perfil no actualizado', data: [] });
 	};
     } catch(error){
         console.error('Error al introducir el nuevo registro:', error);
   
-	    return resp.json({ status: false, error: 'Algo falló' });
+	    return resp.status(500).json({ status: false, error: 'Algo falló' });
     }
 });
 
 // Borrar vacaciones
 router.delete('/:id', async (req, resp) => {
 
-	const result = await DB('requests')
+    try{
+        const result = await DB('requests')
 	.delete()
 	.where('ID', req.params.id);
 
 	if(result > 0){
-		resp.json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: req.user});
+		return resp.status(200).json({ status: true, message: 'Perfil eliminado correctamente', deletedProfile: req.user});
 	} else {
-		resp.json({ status: false, message: 'Ha habido algún error' })
+		return resp.status(404).json({ status: false, message: 'Ha habido algún error' })
 	}
+
+    } catch (error) {
+        console.error('Error al eliminar:', error);
+  
+	    return resp.status(500).json({ status: false, error: 'Algo falló' });
+    }
 });
 
 

@@ -35,7 +35,7 @@ const ManageList = (props) => {
                       </p>
                       <p className="mb-2">Fecha petición: {request.creado}</p>
                       <p className="mb-2">
-                        Fechas solicitadas: del {request.fecha} al {request.fecha2}
+                        Fechas solicitadas: del {request.enterDate} al {request.enterDate2}
                       </p>
                       <p className="mb-2">Motivo: {request.comments}</p>
                       <button className="btn btn-primary" onClick={()=> props.updateMain('manage', request.ID)}>Gestionar</button>

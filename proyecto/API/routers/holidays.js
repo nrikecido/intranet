@@ -19,7 +19,7 @@ router.get('/list', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 
 	}catch (error){
@@ -39,7 +39,7 @@ router.get('/self', [authtoken], async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -58,7 +58,7 @@ router.get('/:id', async (req, resp) => {
 		if (result.length > 0) {
             return resp.status(200).json({ status: true, data: result });
         } else {
-            return resp.status(404).json({ status: false, data: result });
+            return resp.status(404).json({ status: false, data: [] });
         }
 	}catch (error){
 		console.error(error);
@@ -86,6 +86,7 @@ router.post('/', async (req, resp) => {
 
 router.put('/', async (req, resp) => {
 
+    try {
     const ID = req.body.userID;
     const whitelist = ['userID', 'enjoyed', 'available'];
     const toEdit = {};
@@ -101,10 +102,15 @@ router.put('/', async (req, resp) => {
         .where('userID', ID)
 
     if (result > 0) {
-		resp.json({ status: true, message: 'Entrada actualizada correctamente', data: toEdit });
+		return resp.status(200).json({ status: true, message: 'Entrada actualizada correctamente', data: toEdit });
 		} else {
-		resp.json({ status: false, message: 'Entrada no actualizada', data: toEdit });
+		return resp.status(404)({ status: false, message: 'Entrada no actualizada', data: [] });
 	};
+    } catch (error) {
+        console.error('Error al crear un nuevo usuario:', error);
+  
+	    return resp.status(500).json({ status: false, error: 'Algo falló' });
+    }
 });
 
 // Borrar usuario (solo el jefe también)
